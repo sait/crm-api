@@ -1,85 +1,93 @@
-<!DOCTYPE html>
-<html lang="es" dir="ltr">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="Content-Script-Type" content="text/javascript">
-<meta name="robots" content="noindex">
-<meta name="referrer" content="origin-when-crossorigin">
-<title>Exportar: crm - Adminer</title>
-<link rel="stylesheet" type="text/css" href="adminer-4.2.3.php?file=default.css&amp;version=4.2.3">
-<script type="text/javascript" src="adminer-4.2.3.php?file=functions.js&amp;version=4.2.3"></script>
-<link rel="shortcut icon" type="image/x-icon" href="adminer-4.2.3.php?file=favicon.ico&amp;version=4.2.3">
-<link rel="apple-touch-icon" href="adminer-4.2.3.php?file=favicon.ico&amp;version=4.2.3">
-<link rel="stylesheet" type="text/css" href="adminer.css">
+-- Adminer 4.2.3 MySQL dump
 
-<body class="ltr nojs" onkeydown="bodyKeydown(event);" onclick="bodyClick(event);">
-<script type="text/javascript">
-document.body.className = document.body.className.replace(/ nojs/, ' js');
-var offlineMessage = 'You are offline.';
-</script>
+SET NAMES utf8;
+SET time_zone = '+00:00';
+SET foreign_key_checks = 0;
+SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
-<div id="help" class="jush-sql jsonly hidden" onmouseover="helpOpen = 1;" onmouseout="helpMouseout(this, event);"></div>
+DROP DATABASE IF EXISTS `crm`;
+CREATE DATABASE `crm` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `crm`;
 
-<div id="content">
-<p id="breadcrumb"><a href="adminer-4.2.3.php">MySQL</a> &raquo; <a href='adminer-4.2.3.php?username=root' accesskey='1' title='Alt+Shift+1'>Servidor</a> &raquo; <a href="adminer-4.2.3.php?username=root&amp;db=crm">crm</a> &raquo; Exportar
-<h2>Exportar: crm</h2>
-<div id='ajaxstatus' class='jsonly hidden'></div>
+DROP TABLE IF EXISTS `actividades`;
+CREATE TABLE `actividades` (
+  `idact` int(11) NOT NULL AUTO_INCREMENT,
+  `idcont` int(11) NOT NULL,
+  `idord` int(11) NOT NULL,
+  `fecha` datetime DEFAULT CURRENT_TIMESTAMP,
+  `duracion` int(11) DEFAULT NULL,
+  `obs` text,
+  PRIMARY KEY (`idact`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-<form action="" method="post">
-<table cellspacing="0">
-<tr><th>Salida<td><label><input type='radio' name='output' value='text' checked>mostrar</label><label><input type='radio' name='output' value='file'>archivo</label><label><input type='radio' name='output' value='gz'>gzip</label>
-<tr><th>Formato<td><label><input type='radio' name='format' value='sql' checked>SQL</label><label><input type='radio' name='format' value='csv'>CSV,</label><label><input type='radio' name='format' value='csv;'>CSV;</label><label><input type='radio' name='format' value='tsv'>TSV</label>
-<tr><th>Base de datos<td><select name='db_style'><option><option>USE<option selected>DROP+CREATE<option>CREATE</select><label><input type='checkbox' name='routines' value='1' checked>Procedimientos</label><label><input type='checkbox' name='events' value='1' checked>Eventos</label><tr><th>Tablas<td><select name='table_style'><option><option selected>DROP+CREATE<option>CREATE</select><label><input type='checkbox' name='auto_increment' value='1'>Incremento automático</label><label><input type='checkbox' name='triggers' value='1' checked>Disparadores</label><tr><th>Datos<td><select name='data_style'><option><option>TRUNCATE+INSERT<option selected>INSERT<option>INSERT+UPDATE</select></table>
-<p><input type="submit" value="Exportar">
-<input type="hidden" name="token" value="107988:917275">
 
-<table cellspacing="0">
-<thead><tr><th style='text-align: left;'><label class='block'><input type='checkbox' id='check-tables' checked onclick='formCheck(this, /^tables\[/);'>Tablas</label><th style='text-align: right;'><label class='block'>Datos<input type='checkbox' id='check-data' checked onclick='formCheck(this, /^data\[/);'></label></thead>
-<tr><td><label class='block'><input type='checkbox' name='tables[]' value='actividades' checked onclick="checkboxClick(event, this); formUncheck(&#039;check-tables&#039;);">actividades</label><td align='right'><label class='block'><span id='Rows-actividades'></span><input type='checkbox' name='data[]' value='actividades' checked onclick="checkboxClick(event, this); formUncheck(&#039;check-data&#039;);"></label>
-<tr><td><label class='block'><input type='checkbox' name='tables[]' value='contactos' checked onclick="checkboxClick(event, this); formUncheck(&#039;check-tables&#039;);">contactos</label><td align='right'><label class='block'><span id='Rows-contactos'></span><input type='checkbox' name='data[]' value='contactos' checked onclick="checkboxClick(event, this); formUncheck(&#039;check-data&#039;);"></label>
-<tr><td><label class='block'><input type='checkbox' name='tables[]' value='ordenes' checked onclick="checkboxClick(event, this); formUncheck(&#039;check-tables&#039;);">ordenes</label><td align='right'><label class='block'><span id='Rows-ordenes'></span><input type='checkbox' name='data[]' value='ordenes' checked onclick="checkboxClick(event, this); formUncheck(&#039;check-data&#039;);"></label>
-<tr><td><label class='block'><input type='checkbox' name='tables[]' value='usuarios' checked onclick="checkboxClick(event, this); formUncheck(&#039;check-tables&#039;);">usuarios</label><td align='right'><label class='block'><span id='Rows-usuarios'></span><input type='checkbox' name='data[]' value='usuarios' checked onclick="checkboxClick(event, this); formUncheck(&#039;check-data&#039;);"></label>
-<script type='text/javascript'>ajaxSetHtml('adminer-4.2.3.php?username=root&db=crm&script=db');</script>
-</table>
-</form>
-</div>
+DROP TABLE IF EXISTS `contactos`;
+CREATE TABLE `contactos` (
+  `idcont` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT CURRENT_TIMESTAMP,
+  `nombre` varchar(100) DEFAULT NULL,
+  `empresa` varchar(100) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `telefono` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`idcont`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-<form action='' method='post'>
-<div id='lang'>Idioma: <select name='lang' onchange="this.form.submit();"><option value="en">English<option value="ar">العربية<option value="bg">Български<option value="bn">বাংলা<option value="ca">Català<option value="cs">Čeština<option value="da">Dansk<option value="de">Deutsch<option value="el">Ελληνικά<option value="es" selected>Español<option value="et">Eesti<option value="fa">فارسی<option value="fr">Français<option value="gl">Galego<option value="hu">Magyar<option value="id">Bahasa Indonesia<option value="it">Italiano<option value="ja">日本語<option value="ko">한국어<option value="lt">Lietuvių<option value="nl">Nederlands<option value="no">Norsk<option value="pl">Polski<option value="pt">Português<option value="pt-br">Português (Brazil)<option value="ro">Limba Română<option value="ru">Русский язык<option value="sk">Slovenčina<option value="sl">Slovenski<option value="sr">Српски<option value="ta">த‌மிழ்<option value="th">ภาษาไทย<option value="tr">Türkçe<option value="uk">Українська<option value="vi">Tiếng Việt<option value="zh">简体中文<option value="zh-tw">繁體中文</select> <input type='submit' value='Usar' class='hidden'>
-<input type='hidden' name='token' value='917633:154190'>
-</div>
-</form>
-<form action="" method="post">
-<p class="logout">
-<input type="submit" name="logout" value="Cerrar sesión" id="logout">
-<input type="hidden" name="token" value="107988:917275">
-</p>
-</form>
-<div id="menu">
-<h1>
-<a href='https://www.adminer.org/' target='_blank' id='h1'>Adminer</a> <span class="version">4.2.3</span>
-<a href="https://www.adminer.org/#download" target="_blank" id="version"></a>
-</h1>
-<script type="text/javascript" src="adminer-4.2.3.php?file=jush.js&amp;version=4.2.3"></script>
-<script type="text/javascript">
-var jushLinks = { sql: [ 'adminer-4.2.3.php?username=root&db=crm&table=$&', /\b(actividades|contactos|ordenes|usuarios)\b/g ] };
-jushLinks.bac = jushLinks.sql;
-jushLinks.bra = jushLinks.sql;
-jushLinks.sqlite_quo = jushLinks.sql;
-jushLinks.mssql_bra = jushLinks.sql;
-bodyLoad('5.5');
-</script>
-<form action="">
-<p id="dbs">
-<input type="hidden" name="username" value="root"><span title='base de datos'>DB</span>: <select name='db' onmousedown='dbMouseDown(event, this);' onchange='dbChange(this);'><option value=""><option selected>crm<option>information_schema<option>mycrm<option>mysql<option>performance_schema<option>sait_claves<option>saitlicences<option>soportebk</select><input type='submit' value='Usar' class='hidden'>
-<input type="hidden" name="dump" value=""></p></form>
-<p class='links'><a href='adminer-4.2.3.php?username=root&amp;db=crm&amp;sql='>Comando SQL</a>
-<a href='adminer-4.2.3.php?username=root&amp;db=crm&amp;import='>Importar</a>
-<a href='adminer-4.2.3.php?username=root&amp;db=crm&amp;dump=' id='dump' class='active '>Exportar</a>
-<a href="adminer-4.2.3.php?username=root&amp;db=crm&amp;create=">Crear tabla</a>
-<p id='tables' onmouseover='menuOver(this, event);' onmouseout='menuOut(this);'>
-<a href="adminer-4.2.3.php?username=root&amp;db=crm&amp;select=actividades" class='select'>registros</a> <a href="adminer-4.2.3.php?username=root&amp;db=crm&amp;table=actividades" title='Mostrar estructura'>actividades</a><br>
-<a href="adminer-4.2.3.php?username=root&amp;db=crm&amp;select=contactos" class='select'>registros</a> <a href="adminer-4.2.3.php?username=root&amp;db=crm&amp;table=contactos" title='Mostrar estructura'>contactos</a><br>
-<a href="adminer-4.2.3.php?username=root&amp;db=crm&amp;select=ordenes" class='select'>registros</a> <a href="adminer-4.2.3.php?username=root&amp;db=crm&amp;table=ordenes" title='Mostrar estructura'>ordenes</a><br>
-<a href="adminer-4.2.3.php?username=root&amp;db=crm&amp;select=usuarios" class='select'>registros</a> <a href="adminer-4.2.3.php?username=root&amp;db=crm&amp;table=usuarios" title='Mostrar estructura'>usuarios</a><br>
-</div>
-<script type="text/javascript">setupSubmitHighlight(document);</script>
+INSERT INTO `contactos` (`idcont`, `created`, `nombre`, `empresa`, `email`, `telefono`) VALUES
+(78,	'2016-02-02 11:37:40',	'karen molina',	'sait',	'karen@sait.com',	'32132132');
+
+DROP TABLE IF EXISTS `ordenes`;
+CREATE TABLE `ordenes` (
+  `idord` int(11) NOT NULL AUTO_INCREMENT,
+  `idcont` int(11) NOT NULL,
+  `fecha` datetime DEFAULT CURRENT_TIMESTAMP,
+  `obs` text,
+  `duracion` int(11) DEFAULT NULL,
+  PRIMARY KEY (`idord`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `ordenes` (`idord`, `idcont`, `fecha`, `obs`, `duracion`) VALUES
+(5,	15,	'2016-02-01 09:16:20',	'todo al cien',	15),
+(6,	15,	'2016-02-01 09:16:41',	'todo al cien',	32),
+(7,	15,	'2016-02-01 09:16:44',	'todo al cien',	43),
+(8,	15,	'2016-02-01 09:16:48',	'todo al cien',	65),
+(9,	15,	'2016-02-01 09:17:01',	'perfecto',	65),
+(10,	15,	'2016-02-01 09:17:09',	'andamos bien',	65),
+(11,	23,	'2016-02-01 09:22:46',	'andamos bien',	65),
+(12,	23,	'2016-02-01 09:25:59',	'orden de alas',	65),
+(21,	23,	'2016-02-01 09:33:00',	'actualizado correctamente otra vez',	65),
+(22,	1,	'2016-02-01 15:43:56',	'ads',	0),
+(23,	15,	'2016-02-01 15:44:57',	'perro',	20),
+(24,	1,	'2016-02-01 15:48:53',	'Orden PC',	40),
+(25,	20,	'2016-02-01 15:57:45',	'no hay ',	23),
+(26,	55,	'2016-02-02 08:17:22',	'orden bien',	20),
+(27,	1,	'2016-02-02 08:56:00',	'orden de pcs',	20),
+(28,	1,	'2016-02-02 08:56:07',	'orden de teclados',	20),
+(29,	15,	'2016-02-02 08:57:49',	'ordenes',	21),
+(30,	59,	'2016-02-02 10:32:27',	'sad',	0),
+(31,	66,	'2016-02-02 10:35:33',	'dasdas',	0),
+(32,	66,	'2016-02-02 10:35:35',	'dasdas',	0),
+(33,	66,	'2016-02-02 10:35:35',	'dasdas',	0),
+(34,	65,	'2016-02-02 10:37:32',	'ewewq',	0),
+(35,	65,	'2016-02-02 10:37:32',	'ewewq',	0),
+(36,	65,	'2016-02-02 10:37:32',	'ewewq',	0),
+(37,	65,	'2016-02-02 10:37:32',	'ewewq',	0),
+(38,	65,	'2016-02-02 10:37:33',	'ewewq',	0),
+(39,	65,	'2016-02-02 10:37:33',	'ewewq',	0),
+(40,	15,	'2016-02-02 11:16:27',	'orden de impresoras',	50),
+(41,	71,	'2016-02-02 11:17:26',	'orden de computadoras',	50),
+(42,	70,	'2016-02-02 11:17:36',	'orden de mouses',	50),
+(43,	78,	'2016-02-02 12:49:39',	'orden bien',	50);
+
+DROP TABLE IF EXISTS `usuarios`;
+CREATE TABLE `usuarios` (
+  `iduser` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `mail` varchar(100) NOT NULL,
+  `pswd` varchar(100) NOT NULL,
+  PRIMARY KEY (`iduser`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `usuarios` (`iduser`, `name`, `mail`, `pswd`) VALUES
+(1,	'admin',	'root@localhost',	'koko');
+
+-- 2016-02-03 16:26:42
