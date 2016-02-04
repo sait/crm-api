@@ -13,11 +13,12 @@ var app = express();
 /**
  * Modules Dependencies
  * **/
+var auth = require('./crm/utils/auth');
+
+
 var contactos = require('./crm/routes/contactos');
 var usuarios = require('./crm/routes/usuarios');
 var ordenes = require('./crm/routes/ordenes');
-
-
 
 
 /**
@@ -26,9 +27,18 @@ var ordenes = require('./crm/routes/ordenes');
 
 // Middleware para logger
 app.use(logger('dev'));
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(methodOverride());
+
+
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, X-Token, Content-Type, Accept");
+    next();
+});
+
 
 /**
  * Test Resources
@@ -43,34 +53,34 @@ app.get('/hello', function (req, res, next) {
 
 });
 
+app.post('/login', auth.login);
+
 /**
  * Resources
  * **/
 // se usa el modulo de cliente como middleware..
-app.use('/contactos', contactos);
+app.use('/contactos', auth.verify,contactos);
 
-app.use('/usuarios', usuarios);
+app.use('/usuarios', auth.verify, usuarios);
 
-app.use('/ordenes', ordenes);
-
-
+app.use('/ordenes', auth.verify, ordenes);
 
 
 /**
  * Error Handlers
  * **/
 
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
-});
+//// catch 404 and forward to error handler
+//app.use(function (req, res, next) {
+//    var err = new Error('Not Found');
+//    err.status = 404;
+//    next(err);
+//});
 
 // error handlers
 
-// development error handler
-// will print stacktrace
+ //development error handler
+ //will print stacktrace
 if (app.get('env') === 'development') {
     app.use(function (err, req, res, next) {
         res.status(err.status || 500);

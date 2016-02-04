@@ -3,14 +3,15 @@
  */
 
 var mysql = require('mysql');
+var appconfig =  require('./utils/config');
 
 
 var config = {
-    host: '192.168.0.160',
-    user: 'remoto',
-    password: 'nachito',
+    host: appconfig.devDatabase.host,
+    user: appconfig.devDatabase.user,
+    password: appconfig.devDatabase.pass,
     connectionLimit: 10,
-    database: 'crm',
+    database: appconfig.devDatabase.name,
     port: 3306,
     dateStrings: 'date',
     debug: false

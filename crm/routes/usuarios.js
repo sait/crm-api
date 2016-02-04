@@ -65,7 +65,7 @@ router.get('/:idusuario', function (req, res, next) {
 
 
     } else {
-        res.status(50).json();
+        res.status(500).json();
     }
 
 
