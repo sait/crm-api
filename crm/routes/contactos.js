@@ -65,7 +65,7 @@ router.get('/:idcontacto', function (req, res, next) {
 
 
     } else {
-        res.status(50).json();
+        res.status(500).json();
     }
 
 
@@ -240,7 +240,7 @@ router.get('/:idcontacto/ordenes', function (req, res, next) {
 
 
     } else {
-        res.status(50).json();
+        res.status(500).json();
     }
 
 
@@ -277,7 +277,7 @@ router.get('/:idcontacto/ordenes/:idorden', function (req, res, next) {
 
 
     } else {
-        res.status(50).json();
+        res.status(500).json();
     }
 
 
@@ -362,7 +362,7 @@ router.delete('/:idcontacto/ordenes/:idorden', function (req, res, next) {
             });
 
     } else {
-        res.status(50).json();
+        res.status(500).json();
     }
 
 

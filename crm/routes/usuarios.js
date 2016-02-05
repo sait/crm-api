@@ -36,23 +36,22 @@ router.get('/pruebas', function (req, res, next) {
     });
 
 
-    conexion.multipleQuery(misconsultas).then(function (result) {
+    conexion.multipleQueryTrans(misconsultas)
+        .then(function (result) {
 
-        // console.log("Todos mis usuarios ", result[2])
-        if (result[2].length > 0) {
+            //console.log("Todos mis usuarios ", result[2])
+            if (result[2].length > 0) {
 
-            res.status(200).json({'total_count': result[2].length, 'data': result[2]});
-        } else {
+                res.status(200).json({'total_count': result[2].length, 'data': result[2]});
+            } else {
 
-            res.status(204).json();
-        }
+                res.status(204).json();
+            }
 
-    }, function (error) {
-        res.status(500).json({'error': error});
-        next();
+        }, function (error) {
 
-    });
-
+            res.status(500).json({'error': error});
+        });
 
 });
 
