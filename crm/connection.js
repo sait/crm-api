@@ -73,7 +73,7 @@ var consulta = function (sql, values) {
                 });//query
 
             });//transaction
-        }
+        }//if - error
     });
 
     // retorna la promesa
@@ -81,7 +81,34 @@ var consulta = function (sql, values) {
 };//consulta
 
 
-module.exports = {consulta: consulta, pool: pool};
+var multipleQuery = function (querys) {
+
+    // validamos que sea array
+    if (Array.isArray(querys)) {
+
+        //creamos un arreglo donde guardaremos las promesas
+        var promises = [];
+
+        //recorremos el array de consultas
+        for (var i = 0; i < querys.length; i++) {
+
+            //validamos que tengan values
+            querys[i].values === undefined ? querys[i].values = [] : null;
+
+            //se guardan las promises en el array
+            promises.push(consulta(querys[i].sql, querys[i].values));
+
+        }//for
+
+    }//if is array
+
+    // se ejecutan totas las promesas
+    return Q.all(promises);
+
+};
+
+
+module.exports = {consulta: consulta, pool: pool, multipleQuery: multipleQuery};
 
 
 

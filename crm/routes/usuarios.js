@@ -5,32 +5,59 @@
 
 var express = require('express');
 var router = express.Router();
+var md5 = require('md5');
 var Q = require('q');
 
 var conexion = require('../connection');
 
 
-router.get('/', function (req, res, next) {
+router.get('/pruebas', function (req, res, next) {
 
-    //conexion.query('select iduser, name, mail from usuarios', function (error, result) {
-    //
-    //
-    //    if (error) {
-    //        // throw error;
-    //        res.status(500).json({'error': error});
-    //        next();
-    //
-    //    } else {
-    //
-    //        if (result.length > 0) {
-    //
-    //            res.status(200).json({'total_count': result.length, 'data': result});
-    //        } else {
-    //
-    //            res.status(204).json();
-    //        }
-    //    }
-    //});
+
+    var misconsultas = [];
+
+    ///hago algo aqui
+    misconsultas.push({
+        sql: 'INSERT INTO usuarios (name, mail, pswd) VALUES (?,?,?)',
+        values: ['usuario', 'hola@hola.com', md5('miclave')]
+    });
+
+
+    //otra aca
+    misconsultas.push({
+        sql: 'INSERT INTO usuarios (name, mail, pswd) VALUES (?,?,?)',
+        values: ['gonzalo', 'gon@hola.com', md5('otraclave')]
+    });
+
+
+    //querio ver
+    misconsultas.push({
+        sql: 'SELECT * FROM usuarios'
+    });
+
+
+    conexion.multipleQuery(misconsultas).then(function (result) {
+
+        // console.log("Todos mis usuarios ", result[2])
+        if (result[2].length > 0) {
+
+            res.status(200).json({'total_count': result[2].length, 'data': result[2]});
+        } else {
+
+            res.status(204).json();
+        }
+
+    }, function (error) {
+        res.status(500).json({'error': error});
+        next();
+
+    });
+
+
+});
+
+
+router.get('/', function (req, res, next) {
 
     var consulta = conexion.consulta('select iduser, name, mail from usuarios').then(
         function (result) {
@@ -96,7 +123,7 @@ router.post('/', function (req, res, next) {
             [
                 nuevousuario['name'],
                 nuevousuario['mail'],
-                nuevousuario['pswd']
+                md5(nuevousuario['pswd'])
             ]).then(
             function (result) {
 
@@ -138,7 +165,7 @@ router.post('/:idusuario', function (req, res, next) {
             conexion.query('UPDATE usuarios SET email=?, pswd=? WHERE  iduser = ?',
                 [
                     nuevousuario['email'],
-                    nuevousuario['pswd'],
+                    md5(nuevousuario['pswd']),
                     idusuario
                 ],
                 function (error, result) {
