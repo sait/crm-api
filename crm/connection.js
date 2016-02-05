@@ -19,10 +19,10 @@ var config = {
 };
 
 
-var conexion = mysql.createPool(config);
+var pool = mysql.createPool(config);
 
 
-conexion.getConnection(function (error) {
+pool.getConnection(function (error) {
     if (error) {
         throw error;
     } else {
@@ -31,17 +31,16 @@ conexion.getConnection(function (error) {
 });
 
 
-conexion.consulta = function (sql, values) {
+var consulta = function (sql, values) {
 
     //se crea objeto defer
     var deferred = Q.defer();
 
     //se validan parametros del query
     values === undefined ? values = [] : null;
-    console.log(values)
 
     //se obtiene una nueva conexion del pool
-    conexion.getConnection(function (error, conn) {
+    pool.getConnection(function (error, conn) {
         if (error) {
             throw error;
         } else {
@@ -82,7 +81,7 @@ conexion.consulta = function (sql, values) {
 };//consulta
 
 
-module.exports = conexion;
+module.exports = {consulta: consulta, pool: pool};
 
 
 
