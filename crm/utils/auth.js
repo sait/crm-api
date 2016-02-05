@@ -63,42 +63,47 @@ var verify = function (req, res, next) {
 
 
 var login = function (req, res, next) {
-    var data = req.body;
+        var data = req.body;
 
-    var user = data['user'];
-    var pswd = data['passwd'];
+        var user = data['user'];
+        var pswd = data['passwd'];
 
-    if (user != undefined && pswd != undefined) {
+        if (user != undefined && pswd != undefined) {
 
-        conexion.query('SELECT iduser, name, mail FROM usuarios WHERE name  = ? AND pswd = ?', [user, md5(pswd)], function (error, user) {
+            conexion.query('SELECT iduser, name, mail FROM usuarios WHERE name  = ? AND pswd = ?', [user, md5(pswd)]).then(function (user) {
 
-            if (error) {
+                    if (user.length > 0) {
 
-                res.status(500).json({'error': error});
-                next();
+                        //genera token
+                        var token = jwt.sign(user, appconfig.secret, {
+                            expiresIn: 86400 // expires in 24 hours
+                        });
 
-            } else {
+                        res.status(200).send({'user': user[0], 'token': token});
+                    } else {
 
-                if (user.length > 0) {
+                        res.status(404).json();
+                        next();
+                    }//else
 
-                    //genera token
-                    var token = jwt.sign(user, appconfig.secret, {
-                        expiresIn: 86400 // expires in 24 hours
-                    });
-
-                    res.status(200).send({'user': user[0], 'token': token});
-                } else {
-
-                    res.status(404).json();
                 }
-            }
-        });
-    } else {
-        res.status(400).json();
+                , function (error) {
+
+                    if (error) {
+
+                        res.status(500).json({'error': error});
+                        next();
+
+                    }
+                });
+        }
+        else {
+            res.status(400).json();
+        }
+
+
     }
-
-
-};
+    ;
 
 
 module.exports = {'login': login, 'verify': verify};

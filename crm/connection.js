@@ -32,63 +32,6 @@ pool.getConnection(function (error) {
 
 
 /**
- * Metodo para hacer una consulta con transaccion
- * @author: gerardo@sait.mx
- * @date: 2/5/2016
- * @params: {sql} 'SELECT * FROM usuarios',  {values} [] arreglo de valores de parametros}]
- * @return promesa
- * **/
-var queryTrans = function (sql, values) {
-
-    //se crea objeto defer
-    var deferred = Q.defer();
-
-    //se validan parametros del query
-    values === undefined ? values = [] : null;
-
-    //se obtiene una nueva conexion del pool
-    pool.getConnection(function (error, conn) {
-        if (error) {
-            throw error;
-        } else {
-            //se empieza una transaccion
-            conn.beginTransaction(function (err) {
-
-                //se hace la consulta
-                conn.query(sql, values, function (error, result) {
-
-                    if (error) {
-                        //si hubo error en la transaccion
-                        conn.rollback(function () {
-                            //falla la promesa y retorna el error
-                            deferred.reject(err)
-                        });
-                        //si hubo un error en el query  falla la promesa y retorna el error
-                        deferred.reject(error)
-                    } else {
-                        //si el la transsacion se realizo correctamente se hace commit
-                        conn.commit(function () {
-                            // si hubo un error en el commit , falla promesa y retorna error
-                            deferred.reject(err)
-                        });
-                        //si el query se realizo correctamente , retorna el resultado
-                        deferred.resolve(result);
-                    }//else
-
-                    //desocupa la conexion del pool
-                    conn.release();
-                });//query
-
-            });//transaction
-        }//if - error
-    });
-
-    // retorna la promesa
-    return deferred.promise;
-};//consulta
-
-
-/**
  * Metodo para hacer una consulta simple sin transacciones
  * @author: gerardo@sait.mx
  * @date: 2/5/2016
@@ -121,6 +64,117 @@ var consultaSimple = function (conn, sql, values) {
     return deferred.promise;
 };//consulta simple
 
+
+var query = function (sql, values) {
+
+    //se crea objeto defer
+    var deferred = Q.defer();
+
+    //se validan parametros del query
+    values === undefined ? values = [] : null;
+
+    //se obtiene una nueva conexion del pool
+    pool.getConnection(function (error, conn) {
+        if (error) {
+            throw error;
+        } else {
+            //se hace la consulta
+            conn.query(sql, values, function (error, result) {
+
+                if (error) {
+                    //si hubo un error en el query  falla la promesa y retorna el error
+                    deferred.reject(error)
+                } else {
+                    //si el query se realizo correctamente , retorna el resultado
+                    deferred.resolve(result);
+                }//else
+
+                //conn.end();
+
+            });//query
+
+        }
+        conn.release();
+    });//pool
+
+
+    // retorna la promesa
+    return deferred.promise;
+};//consulta simple
+
+
+/**
+ * Metodo para hacer una consulta con transaccion
+ * @author: gerardo@sait.mx
+ * @date: 2/5/2016
+ * @params: {sql} 'SELECT * FROM usuarios',  {values} [] arreglo de valores de parametros}]
+ * @return promesa
+ * **/
+var queryTrans = function (sql, values) {
+
+    //se crea objeto defer
+    var deferred = Q.defer();
+
+    //se validan parametros del query
+    values === undefined ? values = [] : null;
+
+    //se obtiene una nueva conexion del pool
+    pool.getConnection(function (error, conn) {
+        if (error) {
+            throw error;
+        } else {
+            //se empieza una transaccion
+            conn.beginTransaction(function (err) {
+
+                //se hace la consulta
+                conn.query(sql, values, function (error, result) {
+
+                    if (error) {
+                        //si hubo error en la transaccion
+                        conn.rollback(function (err) {
+                            //falla la promesa y retorna el error
+                            deferred.reject(err);
+                            console.error('Error en [QUERY-ROLLBACK]  queryTrans  ', err);
+                        });
+                        //si hubo un error en el query  falla la promesa y retorna el error
+                        deferred.reject(error)
+                    } else {
+                        //si el la transsacion se realizo correctamente se hace commit
+                        conn.commit(function (err) {
+
+                            if (err) {
+                                // si hubo un error en el commit , falla promesa y retorna error
+                                deferred.reject(err);
+                                console.error('Error en [COMMIT] queryTrans ', err);
+                                //deshace los cambios que pudo haber hecho
+                                conn.rollback(function (err) {
+                                    //falla la promesa y retorna el error
+                                    deferred.reject(err);
+                                    console.error('Error en [ROLLBACK-COMMIT] queryTrans  ', err)
+                                });
+                            }//if
+
+                        });//commit
+
+                        //si el query se realizo correctamente , retorna el resultado
+                        deferred.resolve(result);
+                    }//else
+
+
+                });//query
+
+            });//transaction
+        }//if - error
+
+        //desocupa la conexion del pool
+        conn.release();
+    });//get conn
+
+    // retorna la promesa
+    return deferred.promise;
+};//consulta
+
+
 /**
  * Metodo para hacer multiples query con una unica transaccion
  * @author: gerardo@sait.mx
@@ -145,9 +199,10 @@ var multipleQueryTrans = function (querys) {
                 //se empieza una transaccion
                 conn.beginTransaction(function (err) {
 
+                    //arreglo donde se guarada la cola de promesas
                     var promises = [];
 
-                    //recorremos el array de consultas y los guarfa en el arreglo
+                    //recorremos el array de consultas
                     for (var i = 0; i < querys.length; i++) {
 
                         //validamos que tengan values
@@ -164,8 +219,9 @@ var multipleQueryTrans = function (querys) {
                         .then(
                         function (result) {
 
-                            //si el la transsacion se realizo correctamente se hace commit
+                            //si el la transsaciones se realizaron correctamente se hace commit
                             conn.commit(function (err) {
+
                                 if (err) {
                                     // si hubo un error en el commit , falla promesa y retorna error
                                     deferred.reject(err);
@@ -176,8 +232,9 @@ var multipleQueryTrans = function (querys) {
                                         deferred.reject(err);
                                         console.error('Error en [ROLLBACK-COMMIT] la consulta multiple  ', err)
                                     });
-                                }
-                            });
+                                }//if
+
+                            });//commit
 
                             deferred.resolve(result);
 
@@ -239,6 +296,7 @@ var multipleQuery = function (querys) {
 
 module.exports = {
     queryTrans: queryTrans,
+    query: query,
     pool: pool,
     multipleQuery: multipleQuery,
     multipleQueryTrans: multipleQueryTrans

@@ -25,7 +25,7 @@ router.get('/pruebas', function (req, res, next) {
 
     //otra aca
     misconsultas.push({
-        sql: 'INSERT INTO usuarios (name, mail, pswd) VALUES (?,?,?)',
+        sql: 'INSERT INTO usuarioss (name, mail, pswd) VALUES (?,?,?)',
         values: ['gonzalo', 'gon@hola.com', md5('otraclave')]
     });
 
@@ -36,29 +36,43 @@ router.get('/pruebas', function (req, res, next) {
     });
 
 
-    conexion.multipleQueryTrans(misconsultas)
-        .then(function (result) {
+    conexion.multipleQueryTrans(misconsultas).then(function (result) {
 
-            //console.log("Todos mis usuarios ", result[2])
-            if (result[2].length > 0) {
+        //console.log("Todos mis usuarios ", result[2])
+        if (result[2].length > 0) {
 
-                res.status(200).json({'total_count': result[2].length, 'data': result[2]});
-            } else {
+            res.status(200).json({'total_count': result[2].length, 'data': result[2]});
+        } else {
 
-                res.status(204).json();
-            }
+            res.status(204).json();
+        }
 
-        }, function (error) {
+    }).fail(function (error) {
 
-            res.status(500).json({'error': error});
-        });
+        res.status(500).json({'error': error});
+    });
+    //.then(function (result) {
+    //
+    //    //console.log("Todos mis usuarios ", result[2])
+    //    if (result[2].length > 0) {
+    //
+    //        res.status(200).json({'total_count': result[2].length, 'data': result[2]});
+    //    } else {
+    //
+    //        res.status(204).json();
+    //    }
+    //
+    //}, function (error) {
+    //
+    //    res.status(500).json({'error': error});
+    //});
 
 });
 
 
 router.get('/', function (req, res, next) {
 
-    var consulta = conexion.consulta('select iduser, name, mail from usuarios').then(
+    var consulta = conexion.queryTrans('select iduser, name, mail from usuarios').then(
         function (result) {
 
             if (result.length > 0) {
@@ -89,7 +103,7 @@ router.get('/:idusuario', function (req, res, next) {
 
     if (idusuario != undefined || idusuario > 0) {
 
-        conexion.consulta('SELECT iduser, name, mail FROM usuarios WHERE iduser = ?', [idusuario]).then(function (result) {
+        conexion.queryTrans('SELECT iduser, name, mail FROM usuarios WHERE iduser = ?', [idusuario]).then(function (result) {
 
             if (result.length > 0) {
                 res.status(200).json({'data': result});
@@ -118,7 +132,7 @@ router.post('/', function (req, res, next) {
 
     if (nuevousuario['name'] != undefined && nuevousuario['mail'] && nuevousuario['pswd']) {
 
-        conexion.consulta('INSERT INTO usuarios (name, mail, pswd) VALUES (?,?,?)',
+        conexion.queryTrans('INSERT INTO usuarios (name, mail, pswd) VALUES (?,?,?)',
             [
                 nuevousuario['name'],
                 nuevousuario['mail'],

@@ -17,7 +17,7 @@ router.get('/', function (req, res, next) {
         if (error) {
             // throw error;
             res.status(500).json({'error': error});
-            next();
+         //   next();
 
         } else {
 
