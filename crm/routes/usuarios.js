@@ -5,21 +5,35 @@
 
 var express = require('express');
 var router = express.Router();
+var Q = require('q');
 
 var conexion = require('../connection');
 
 
 router.get('/', function (req, res, next) {
 
-    conexion.query('select iduser, name, mail from usuarios', function (error, result) {
+    //conexion.query('select iduser, name, mail from usuarios', function (error, result) {
+    //
+    //
+    //    if (error) {
+    //        // throw error;
+    //        res.status(500).json({'error': error});
+    //        next();
+    //
+    //    } else {
+    //
+    //        if (result.length > 0) {
+    //
+    //            res.status(200).json({'total_count': result.length, 'data': result});
+    //        } else {
+    //
+    //            res.status(204).json();
+    //        }
+    //    }
+    //});
 
-
-        if (error) {
-            // throw error;
-            res.status(500).json({'error': error});
-            next();
-
-        } else {
+    var consulta = conexion.consulta('select iduser, name, mail from usuarios').then(
+        function (result) {
 
             if (result.length > 0) {
 
@@ -28,8 +42,14 @@ router.get('/', function (req, res, next) {
 
                 res.status(204).json();
             }
-        }
-    });
+
+        }, function (error) {
+            res.status(500).json({'error': error});
+            next();
+        });
+
+
+    Q.allSettled(consulta).then(console.log("consulta terminada"));
 
 
     // res.send(app);
@@ -43,26 +63,20 @@ router.get('/:idusuario', function (req, res, next) {
 
     if (idusuario != undefined || idusuario > 0) {
 
-        conexion.query('SELECT iduser, name, mail FROM usuarios WHERE iduser = ?', [idusuario], function (error, result) {
-            // res.status(200).json({'result': result, error : error});
+        conexion.consulta('SELECT iduser, name, mail FROM usuarios WHERE iduser = ?', [idusuario]).then(function (result) {
 
-            if (error) {
-                // throw error;
-                res.status(500).json({'error': error});
-                next();
-
+            if (result.length > 0) {
+                res.status(200).json({'data': result});
             } else {
 
-                if (result.length > 0) {
-
-                    res.status(200).json({'data': result});
-                } else {
-
-                    res.status(204).json();
-                }
+                res.status(204).json();
             }
-        });
 
+        }, function (error) {
+            res.status(500).json({'error': error});
+            next();
+
+        });
 
     } else {
         res.status(500).json();
@@ -76,35 +90,31 @@ router.post('/', function (req, res, next) {
 
     var nuevousuario = req.body;
 
-    if (nuevousuario['name'] != undefined && nuevousuario['email'] && nuevousuario['pswd']) {
+    if (nuevousuario['name'] != undefined && nuevousuario['mail'] && nuevousuario['pswd']) {
 
-        conexion.query('INSERT INTO usuarios (name, email, pswd) VALUES (?,?,?)',
+        conexion.consulta('INSERT INTO usuarios (name, mail, pswd) VALUES (?,?,?)',
             [
                 nuevousuario['name'],
-                nuevousuario['email'],
+                nuevousuario['mail'],
                 nuevousuario['pswd']
-            ],
-            function (error, result) {
+            ]).then(
+            function (result) {
 
+                if (result.affectedRows > 0) {
 
-                if (error) {
-                    // throw error;
-                    res.status(500).json({'error': error});
-                    next();
+                    nuevousuario['iduser'] = result.insertId;
+
+                    res.status(201).json({'data': nuevousuario});
 
                 } else {
 
-                    if (result.affectedRows > 0) {
-
-                        nuevousuario['iduser'] = result.insertId;
-
-                        res.status(201).json({'data': nuevousuario});
-
-                    } else {
-
-                        res.status(204).json();
-                    }
+                    res.status(204).json();
                 }
+
+            }, function (error) {
+                res.status(500).json({'error': error});
+                next();
+
             });
 
 
@@ -202,7 +212,6 @@ router.delete('/:idusuario', function (req, res, next) {
     }
 
 });
-
 
 
 module.exports = router;

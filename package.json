@@ -28,6 +28,7 @@
     "method-override": "^2.3.5",
     "morgan": "^1.6.1",
     "mysql": "^2.10.2",
+    "q": "^1.4.1",
     "sails-mysql": "^0.11.2",
     "waterline": "^0.10.31"
   }
